@@ -1,6 +1,7 @@
 package com.researchflow.app.presentation.student
 
 import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,6 +36,7 @@ fun SubmissionScreen(
     viewModel: SubmissionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     var title by remember { mutableStateOf("") }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -43,21 +46,54 @@ fun SubmissionScreen(
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
+
         if (uri != null) {
             selectedFileUri = uri
 
-            val fileName = uri.lastPathSegment
-                ?.substringAfterLast('/')
+            // Get the real filename from the document provider.
+            val fileName = context.contentResolver
+                .query(
+                    uri,
+                    arrayOf(OpenableColumns.DISPLAY_NAME),
+                    null,
+                    null,
+                    null
+                )
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                OpenableColumns.DISPLAY_NAME
+                            )
+                        )
+                    } else {
+                        null
+                    }
+                }
                 ?: "Selected document"
 
             selectedFileName = fileName
 
-            selectedDocumentType = when {
-                fileName.endsWith(".pdf", ignoreCase = true) ->
-                    DocumentType.PDF
+            // Determine the document type from the MIME type first.
+            val mimeType = context.contentResolver.getType(uri)
 
-                fileName.endsWith(".docx", ignoreCase = true) ->
+            selectedDocumentType = when {
+                mimeType == "application/pdf" -> {
+                    DocumentType.PDF
+                }
+
+                mimeType ==
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
                     DocumentType.DOCX
+                }
+
+                fileName.endsWith(".pdf", ignoreCase = true) -> {
+                    DocumentType.PDF
+                }
+
+                fileName.endsWith(".docx", ignoreCase = true) -> {
+                    DocumentType.DOCX
+                }
 
                 else -> null
             }

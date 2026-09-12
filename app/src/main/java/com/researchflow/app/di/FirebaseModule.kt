@@ -9,6 +9,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import android.content.ContentResolver
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 @Module
 @InstallIn(SingletonComponent::class)

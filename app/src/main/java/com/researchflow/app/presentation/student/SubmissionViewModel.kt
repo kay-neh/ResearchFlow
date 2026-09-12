@@ -3,9 +3,11 @@ package com.researchflow.app.presentation.student
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.researchflow.app.data.model.DocumentType
 import com.researchflow.app.data.model.Submission
+import com.researchflow.app.data.model.SubmissionStatus
 import com.researchflow.app.domain.usecase.submission.CreateSubmissionUseCase
 import com.researchflow.app.domain.usecase.submission.UploadSubmissionVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,12 +55,16 @@ class SubmissionViewModel @Inject constructor(
             try {
                 val submissionId = UUID.randomUUID().toString()
 
+                val now = Timestamp.now()
+
                 val submission = Submission(
                     submissionId = submissionId,
                     studentId = studentId,
                     title = title,
-                    status = com.researchflow.app.data.model.SubmissionStatus.SUBMITTED,
-                    currentVersion = 1
+                    status = SubmissionStatus.SUBMITTED,
+                    currentVersion = 1,
+                    createdAt = now,
+                    updatedAt = now
                 )
 
                 createSubmissionUseCase(submission)
