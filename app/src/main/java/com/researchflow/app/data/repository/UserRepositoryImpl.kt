@@ -16,4 +16,8 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getUser(userId: String): User? {
         return firestoreUserService.getUser(userId)
     }
+
+    override suspend fun getSupervisors(): List<User> {
+        return firestoreUserService.getSupervisors()
+    }
 }

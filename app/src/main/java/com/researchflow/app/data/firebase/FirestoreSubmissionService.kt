@@ -23,4 +23,14 @@ class FirestoreSubmissionService @Inject constructor(
             .await()
             .toObject(Submission::class.java)
     }
+
+    suspend fun getSubmissionsByStudent(
+        studentId: String
+    ): List<Submission> {
+        return firestore.collection("submissions")
+            .whereEqualTo("studentId", studentId)
+            .get()
+            .await()
+            .toObjects(Submission::class.java)
+    }
 }

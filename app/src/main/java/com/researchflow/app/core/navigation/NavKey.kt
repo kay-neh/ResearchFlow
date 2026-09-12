@@ -19,7 +19,13 @@ data object StudentDashboard : NavKey
 data object SubmitResearch : NavKey
 
 @Serializable
+data object SubmissionStatus : NavKey
+
+@Serializable
 data object SupervisorDashboard : NavKey
+
+@Serializable
+data object SupervisorStudents : NavKey
 
 @Serializable
 data object AdminDashboard : NavKey

@@ -23,4 +23,34 @@ class FirestoreStudentService @Inject constructor(
             .await()
             .toObject(Student::class.java)
     }
+
+    suspend fun getStudentsBySupervisor(
+        supervisorId: String
+    ): List<Student> {
+        return firestore.collection("students")
+            .whereEqualTo("supervisorId", supervisorId)
+            .get()
+            .await()
+            .toObjects(Student::class.java)
+    }
+
+    suspend fun getAllStudents(): List<Student> {
+        return firestore.collection("students")
+            .get()
+            .await()
+            .toObjects(Student::class.java)
+    }
+
+    suspend fun assignSupervisor(
+        studentId: String,
+        supervisorId: String
+    ) {
+        firestore.collection("students")
+            .document(studentId)
+            .update(
+                "supervisorId",
+                supervisorId
+            )
+            .await()
+    }
 }

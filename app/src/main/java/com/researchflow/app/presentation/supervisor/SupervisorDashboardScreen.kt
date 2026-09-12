@@ -1,4 +1,4 @@
-package com.researchflow.app.presentation.student
+package com.researchflow.app.presentation.supervisor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,9 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun StudentDashboardScreen(
-    onSubmitResearchClick: () -> Unit,
-    onViewSubmissionStatusClick: () -> Unit
+fun SupervisorDashboardScreen(
+    onViewStudentsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -33,26 +32,17 @@ fun StudentDashboardScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Student Dashboard",
+            text = "Supervisor Dashboard",
             style = MaterialTheme.typography.bodyLarge
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = onSubmitResearchClick,
+            onClick = onViewStudentsClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Submit Research")
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onViewSubmissionStatusClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("View Submission Status")
+            Text("View Assigned Students")
         }
     }
 }

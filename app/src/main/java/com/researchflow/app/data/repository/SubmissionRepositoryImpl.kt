@@ -18,4 +18,11 @@ class SubmissionRepositoryImpl @Inject constructor(
     ): Submission? {
         return firestoreSubmissionService.getSubmission(submissionId)
     }
+
+    override suspend fun getSubmissionsByStudent(
+        studentId: String
+    ): List<Submission> {
+        return firestoreSubmissionService
+            .getSubmissionsByStudent(studentId)
+    }
 }

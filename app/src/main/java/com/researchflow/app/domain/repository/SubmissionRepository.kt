@@ -7,4 +7,8 @@ interface SubmissionRepository {
     suspend fun createSubmission(submission: Submission)
 
     suspend fun getSubmission(submissionId: String): Submission?
+
+    suspend fun getSubmissionsByStudent(
+        studentId: String
+    ): List<Submission>
 }

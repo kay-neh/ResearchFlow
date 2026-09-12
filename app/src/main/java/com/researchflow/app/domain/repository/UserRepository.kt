@@ -7,4 +7,6 @@ interface UserRepository {
     suspend fun createUser(user: User)
 
     suspend fun getUser(userId: String): User?
+
+    suspend fun getSupervisors(): List<User>
 }

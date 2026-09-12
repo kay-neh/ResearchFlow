@@ -23,14 +23,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.researchflow.app.data.model.UserRole
 
 @Composable
 fun LoginScreen(
     onRegisterClick: () -> Unit,
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (UserRole) -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val userRole = uiState.userRole
 
     var email by remember {
         mutableStateOf("")
@@ -40,9 +43,9 @@ fun LoginScreen(
         mutableStateOf("")
     }
 
-    LaunchedEffect(uiState.isAuthenticated) {
-        if (uiState.isAuthenticated) {
-            onLoginSuccess()
+    LaunchedEffect(uiState.isAuthenticated, userRole) {
+        if (uiState.isAuthenticated && userRole != null) {
+            onLoginSuccess(userRole)
         }
     }
 

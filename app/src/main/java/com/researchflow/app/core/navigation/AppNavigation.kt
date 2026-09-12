@@ -6,11 +6,15 @@ import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.researchflow.app.data.model.UserRole
 import com.researchflow.app.presentation.auth.LoginScreen
 import com.researchflow.app.presentation.auth.RegisterScreen
 import com.researchflow.app.presentation.student.StudentDashboardScreen
 import com.researchflow.app.presentation.student.StudentProfileScreen
 import com.researchflow.app.presentation.student.SubmissionScreen
+import com.researchflow.app.presentation.student.SubmissionStatusScreen
+import com.researchflow.app.presentation.supervisor.SupervisorDashboardScreen
+import com.researchflow.app.presentation.supervisor.SupervisorStudentsScreen
 
 @Composable
 fun AppNavigation() {
@@ -31,8 +35,20 @@ fun AppNavigation() {
                 onRegisterClick = {
                     navigator.navigate(Register)
                 },
-                onLoginSuccess = {
-                    navigator.navigate(StudentDashboard)
+                onLoginSuccess = { role ->
+                    when (role) {
+                        UserRole.STUDENT -> {
+                            navigator.navigate(StudentDashboard)
+                        }
+
+                        UserRole.SUPERVISOR -> {
+                            navigator.navigate(SupervisorDashboard)
+                        }
+
+                        UserRole.ADMIN -> {
+                            navigator.navigate(AdminDashboard)
+                        }
+                    }
                 }
             )
         }
@@ -57,6 +73,9 @@ fun AppNavigation() {
             StudentDashboardScreen(
                 onSubmitResearchClick = {
                     navigator.navigate(SubmitResearch)
+                },
+                onViewSubmissionStatusClick = {
+                    navigator.navigate(SubmissionStatus)
                 }
             )
         }
@@ -67,6 +86,22 @@ fun AppNavigation() {
                     navigator.navigate(StudentDashboard)
                 }
             )
+        }
+
+        entry<SubmissionStatus> {
+            SubmissionStatusScreen()
+        }
+
+        entry<SupervisorDashboard> {
+            SupervisorDashboardScreen(
+                onViewStudentsClick = {
+                    navigator.navigate(SupervisorStudents)
+                }
+            )
+        }
+
+        entry<SupervisorStudents> {
+            SupervisorStudentsScreen()
         }
 
     }

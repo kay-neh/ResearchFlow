@@ -2,6 +2,7 @@ package com.researchflow.app.data.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.researchflow.app.data.model.User
+import com.researchflow.app.data.model.UserRole
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -22,5 +23,13 @@ class FirestoreUserService @Inject constructor(
             .get()
             .await()
             .toObject(User::class.java)
+    }
+
+    suspend fun getSupervisors(): List<User> {
+        return firestore.collection("users")
+            .whereEqualTo("role", UserRole.SUPERVISOR)
+            .get()
+            .await()
+            .toObjects(User::class.java)
     }
 }

@@ -16,4 +16,26 @@ class StudentRepositoryImpl @Inject constructor(
     override suspend fun getStudent(studentId: String): Student? {
         return firestoreStudentService.getStudent(studentId)
     }
+
+    override suspend fun getStudentsBySupervisor(
+        supervisorId: String
+    ): List<Student> {
+        return firestoreStudentService.getStudentsBySupervisor(
+            supervisorId
+        )
+    }
+
+    override suspend fun getAllStudents(): List<Student> {
+        return firestoreStudentService.getAllStudents()
+    }
+
+    override suspend fun assignSupervisor(
+        studentId: String,
+        supervisorId: String
+    ) {
+        firestoreStudentService.assignSupervisor(
+            studentId = studentId,
+            supervisorId = supervisorId
+        )
+    }
 }
