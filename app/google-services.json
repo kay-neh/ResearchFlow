@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "172461684942",
+    "project_id": "researchflow-d79b5",
+    "storage_bucket": "researchflow-d79b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172461684942:android:a11a8daca5eec57cf2789f",
+        "android_client_info": {
+          "package_name": "com.researchflow.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDy7gb35VLsdzgcgwmHcaI_1tMVD14I_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
