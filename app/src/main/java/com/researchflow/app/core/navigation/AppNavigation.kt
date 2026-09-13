@@ -7,6 +7,10 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.researchflow.app.data.model.UserRole
+import com.researchflow.app.presentation.admin.AdminAssignmentScreen
+import com.researchflow.app.presentation.admin.AdminCreateUserScreen
+import com.researchflow.app.presentation.admin.AdminDashboardScreen
+import com.researchflow.app.presentation.admin.AdminUsersScreen
 import com.researchflow.app.presentation.auth.LoginScreen
 import com.researchflow.app.presentation.auth.RegisterScreen
 import com.researchflow.app.presentation.student.StudentDashboardScreen
@@ -102,6 +106,41 @@ fun AppNavigation() {
 
         entry<SupervisorStudents> {
             SupervisorStudentsScreen()
+        }
+
+        entry<AdminDashboard> {
+            AdminDashboardScreen(
+                onSupervisorAssignmentClick = {
+                    navigator.navigate(
+                        SupervisorAssignment
+                    )
+                },
+                onManageUsersClick = {
+                    navigator.navigate(
+                        ManageUsers
+                    )
+                }
+            )
+        }
+
+        entry<SupervisorAssignment> {
+            AdminAssignmentScreen()
+        }
+
+        entry<ManageUsers> {
+            AdminUsersScreen(
+                onCreateUserClick = {
+                    navigator.navigate(CreateUser)
+                }
+            )
+        }
+
+        entry<CreateUser> {
+            AdminCreateUserScreen(
+                onUserCreated = {
+                    navigator.goBack()
+                }
+            )
         }
 
     }

@@ -1,6 +1,7 @@
 package com.researchflow.app.data.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.researchflow.app.data.model.User
 import com.researchflow.app.data.model.UserRole
 import kotlinx.coroutines.tasks.await
@@ -31,5 +32,38 @@ class FirestoreUserService @Inject constructor(
             .get()
             .await()
             .toObjects(User::class.java)
+    }
+
+    suspend fun getAllUsers(): List<User> {
+        return firestore.collection("users")
+            .get(Source.SERVER)
+            .await()
+            .toObjects(User::class.java)
+    }
+
+    suspend fun updateUser(
+        userId: String,
+        name: String
+    ) {
+        firestore.collection("users")
+            .document(userId)
+            .update(
+                "name",
+                name
+            )
+            .await()
+    }
+
+    suspend fun setUserActive(
+        userId: String,
+        isActive: Boolean
+    ) {
+        firestore.collection("users")
+            .document(userId)
+            .update(
+                "isActive",
+                isActive
+            )
+            .await()
     }
 }

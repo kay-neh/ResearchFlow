@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.researchflow.app.data.model.Student
 import com.researchflow.app.data.model.User
+import com.researchflow.app.domain.usecase.student.AssignSupervisorUseCase
 import com.researchflow.app.domain.usecase.student.GetAllStudentsUseCase
 import com.researchflow.app.domain.usecase.user.GetSupervisorsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +24,8 @@ data class AdminAssignmentUiState(
 @HiltViewModel
 class AdminAssignmentViewModel @Inject constructor(
     private val getAllStudentsUseCase: GetAllStudentsUseCase,
-    private val getSupervisorsUseCase: GetSupervisorsUseCase
+    private val getSupervisorsUseCase: GetSupervisorsUseCase,
+    private val assignSupervisorUseCase: AssignSupervisorUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -52,6 +54,26 @@ class AdminAssignmentViewModel @Inject constructor(
                 _uiState.value = AdminAssignmentUiState(
                     errorMessage =
                         e.message ?: "Failed to load assignment data"
+                )
+            }
+        }
+    }
+
+    fun assignSupervisor(
+        studentId: String,
+        supervisorId: String
+    ) {
+        viewModelScope.launch {
+            try {
+                assignSupervisorUseCase(
+                    studentId = studentId,
+                    supervisorId = supervisorId
+                )
+
+                loadAssignmentData()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = e.message ?: "Failed to assign supervisor"
                 )
             }
         }

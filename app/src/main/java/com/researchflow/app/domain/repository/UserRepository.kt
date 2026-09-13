@@ -9,4 +9,16 @@ interface UserRepository {
     suspend fun getUser(userId: String): User?
 
     suspend fun getSupervisors(): List<User>
+
+    suspend fun getAllUsers(): List<User>
+
+    suspend fun updateUser(
+        userId: String,
+        name: String
+    )
+
+    suspend fun setUserActive(
+        userId: String,
+        isActive: Boolean
+    )
 }

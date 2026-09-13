@@ -1,4 +1,4 @@
-package com.researchflow.app.domain.usecase
+package com.researchflow.app.domain.usecase.student
 
 import com.researchflow.app.domain.repository.StudentRepository
 import javax.inject.Inject

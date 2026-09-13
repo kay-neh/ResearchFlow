@@ -29,3 +29,12 @@ data object SupervisorStudents : NavKey
 
 @Serializable
 data object AdminDashboard : NavKey
+
+@Serializable
+data object SupervisorAssignment : NavKey
+
+@Serializable
+data object ManageUsers : NavKey
+
+@Serializable
+data object CreateUser : NavKey

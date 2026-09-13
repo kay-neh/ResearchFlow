@@ -57,6 +57,15 @@ class AuthViewModel @Inject constructor(
                     return@launch
                 }
 
+                if (!user.isActive) {
+                    logoutUseCase
+
+                    _uiState.value = AuthUiState(
+                        errorMessage = "Your account has been disabled. Please contact the administrator."
+                    )
+                    return@launch
+                }
+
                 _uiState.value = AuthUiState(
                     isAuthenticated = true,
                     userRole = user.role
