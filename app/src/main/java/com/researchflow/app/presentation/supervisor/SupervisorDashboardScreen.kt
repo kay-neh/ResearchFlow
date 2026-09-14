@@ -16,7 +16,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SupervisorDashboardScreen(
-    onViewStudentsClick: () -> Unit
+    onViewStudentsClick: () -> Unit,
+    onViewSubmissionsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -43,6 +44,15 @@ fun SupervisorDashboardScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("View Assigned Students")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = onViewSubmissionsClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("View Submissions")
         }
     }
 }

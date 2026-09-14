@@ -7,7 +7,7 @@ data class SubmissionVersion(
     val submissionId: String = "",
     val versionNumber: Int = 1,
     val documentName: String = "",
-    val documentUrl: String = "",
+    val storagePath: String = "",
     val documentType: DocumentType = DocumentType.PDF,
     val uploadedBy: String = "",
     val uploadedAt: Timestamp? = null

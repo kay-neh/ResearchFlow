@@ -22,7 +22,7 @@ class UploadSubmissionVersionUseCase @Inject constructor(
         fileName: String,
         documentType: DocumentType
     ) {
-        val downloadUrl = storageService.uploadSubmissionDocument(
+        val storagePath = storageService.uploadSubmissionDocument(
             studentId = studentId,
             submissionId = submissionId,
             versionNumber = versionNumber,
@@ -35,7 +35,7 @@ class UploadSubmissionVersionUseCase @Inject constructor(
             submissionId = submissionId,
             versionNumber = versionNumber,
             documentName = fileName,
-            documentUrl = downloadUrl,
+            storagePath = storagePath,
             documentType = documentType,
             uploadedBy = studentId,
             uploadedAt = Timestamp.now()

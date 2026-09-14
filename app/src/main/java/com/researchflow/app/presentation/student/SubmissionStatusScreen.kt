@@ -19,9 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.researchflow.app.data.model.Submission
 
 @Composable
 fun SubmissionStatusScreen(
+    onSubmissionClick: (String) -> Unit,
+    onResubmitClick: (String, Int) -> Unit,
     viewModel: SubmissionStatusViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,7 +70,9 @@ fun SubmissionStatusScreen(
                 ) {
                     items(uiState.submissions) { submission ->
                         SubmissionStatusCard(
-                            submission = submission
+                            submission = submission,
+                            onSubmissionClick = onSubmissionClick,
+                            onResubmitClick = onResubmitClick
                         )
                     }
                 }
@@ -78,9 +83,14 @@ fun SubmissionStatusScreen(
 
 @Composable
 private fun SubmissionStatusCard(
-    submission: com.researchflow.app.data.model.Submission
+    submission: Submission,
+    onSubmissionClick: (String) -> Unit,
+    onResubmitClick: (String, Int) -> Unit
 ) {
     Card(
+        onClick = {
+            onSubmissionClick(submission.submissionId)
+        },
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -115,6 +125,24 @@ private fun SubmissionStatusCard(
                     text = "Last updated: $it",
                     style = MaterialTheme.typography.bodyMedium
                 )
+            }
+
+            if (submission.status ==
+                com.researchflow.app.data.model.SubmissionStatus.CORRECTION_REQUIRED
+            ) {
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                androidx.compose.material3.Button(
+                    onClick = {
+                        onResubmitClick(
+                            submission.submissionId,
+                            submission.currentVersion
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Resubmit Correction")
+                }
             }
         }
     }

@@ -13,12 +13,16 @@ import com.researchflow.app.presentation.admin.AdminDashboardScreen
 import com.researchflow.app.presentation.admin.AdminUsersScreen
 import com.researchflow.app.presentation.auth.LoginScreen
 import com.researchflow.app.presentation.auth.RegisterScreen
+import com.researchflow.app.presentation.student.ResubmissionScreen
 import com.researchflow.app.presentation.student.StudentDashboardScreen
 import com.researchflow.app.presentation.student.StudentProfileScreen
+import com.researchflow.app.presentation.student.StudentSubmissionDetailsScreen
 import com.researchflow.app.presentation.student.SubmissionScreen
 import com.researchflow.app.presentation.student.SubmissionStatusScreen
+import com.researchflow.app.presentation.supervisor.SubmissionDetailsScreen
 import com.researchflow.app.presentation.supervisor.SupervisorDashboardScreen
 import com.researchflow.app.presentation.supervisor.SupervisorStudentsScreen
+import com.researchflow.app.presentation.supervisor.SupervisorSubmissionsScreen
 
 @Composable
 fun AppNavigation() {
@@ -93,19 +97,76 @@ fun AppNavigation() {
         }
 
         entry<SubmissionStatus> {
-            SubmissionStatusScreen()
+            SubmissionStatusScreen(
+                onSubmissionClick = { submissionId ->
+                    navigator.navigate(
+                        StudentSubmissionDetails(submissionId)
+                    )
+                },
+                onResubmitClick = { submissionId, currentVersion ->
+                    navigator.navigate(
+                        Resubmission(
+                            submissionId = submissionId,
+                            currentVersion = currentVersion
+                        )
+                    )
+                }
+            )
+        }
+
+        entry<StudentSubmissionDetails> {
+            StudentSubmissionDetailsScreen(
+                submissionId = it.submissionId,
+                onResubmitClick = { submissionId, currentVersion ->
+                    navigator.navigate(
+                        Resubmission(
+                            submissionId = submissionId,
+                            currentVersion = currentVersion
+                        )
+                    )
+                }
+            )
+        }
+
+        entry<Resubmission> {
+            ResubmissionScreen(
+                submissionId = it.submissionId,
+                currentVersion = it.currentVersion,
+                onResubmissionSuccess = {
+                    navigator.goBack()
+                }
+            )
         }
 
         entry<SupervisorDashboard> {
             SupervisorDashboardScreen(
                 onViewStudentsClick = {
                     navigator.navigate(SupervisorStudents)
+                },
+                onViewSubmissionsClick = {
+                    navigator.navigate(SupervisorSubmissions)
                 }
             )
         }
 
         entry<SupervisorStudents> {
             SupervisorStudentsScreen()
+        }
+
+        entry<SupervisorSubmissions> {
+            SupervisorSubmissionsScreen(
+                onSubmissionClick = { submissionId ->
+                    navigator.navigate(
+                        SubmissionDetails(submissionId)
+                    )
+                }
+            )
+        }
+
+        entry<SubmissionDetails> {
+            SubmissionDetailsScreen(
+                submissionId = it.submissionId
+            )
         }
 
         entry<AdminDashboard> {

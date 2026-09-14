@@ -2,12 +2,14 @@ package com.researchflow.app.di
 
 import com.researchflow.app.data.repository.AdminUserRepositoryImpl
 import com.researchflow.app.data.repository.AuthRepositoryImpl
+import com.researchflow.app.data.repository.FeedbackRepositoryImpl
 import com.researchflow.app.data.repository.StudentRepositoryImpl
 import com.researchflow.app.data.repository.SubmissionRepositoryImpl
 import com.researchflow.app.data.repository.SubmissionVersionRepositoryImpl
 import com.researchflow.app.data.repository.UserRepositoryImpl
 import com.researchflow.app.domain.repository.AdminUserRepository
 import com.researchflow.app.domain.repository.AuthRepository
+import com.researchflow.app.domain.repository.FeedbackRepository
 import com.researchflow.app.domain.repository.StudentRepository
 import com.researchflow.app.domain.repository.SubmissionRepository
 import com.researchflow.app.domain.repository.SubmissionVersionRepository
@@ -56,4 +58,9 @@ abstract class RepositoryModule {
     abstract fun bindAdminUserRepository(
         implementation: AdminUserRepositoryImpl
     ): AdminUserRepository
+
+    @Binds
+    abstract fun bindFeedbackRepository(
+        implementation: FeedbackRepositoryImpl
+    ): FeedbackRepository
 }

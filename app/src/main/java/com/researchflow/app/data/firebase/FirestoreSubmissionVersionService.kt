@@ -23,4 +23,14 @@ class FirestoreSubmissionVersionService @Inject constructor(
             .await()
             .toObject(SubmissionVersion::class.java)
     }
+
+    suspend fun getVersionsBySubmission(
+        submissionId: String
+    ): List<SubmissionVersion> {
+        return firestore.collection("submission_versions")
+            .whereEqualTo("submissionId", submissionId)
+            .get()
+            .await()
+            .toObjects(SubmissionVersion::class.java)
+    }
 }

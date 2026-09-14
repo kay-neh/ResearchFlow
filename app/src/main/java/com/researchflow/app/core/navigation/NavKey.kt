@@ -22,10 +22,29 @@ data object SubmitResearch : NavKey
 data object SubmissionStatus : NavKey
 
 @Serializable
+data class StudentSubmissionDetails(
+    val submissionId: String
+) : NavKey
+
+@Serializable
+data class Resubmission(
+    val submissionId: String,
+    val currentVersion: Int
+) : NavKey
+
+@Serializable
 data object SupervisorDashboard : NavKey
 
 @Serializable
 data object SupervisorStudents : NavKey
+
+@Serializable
+data object SupervisorSubmissions : NavKey
+
+@Serializable
+data class SubmissionDetails(
+    val submissionId: String
+) : NavKey
 
 @Serializable
 data object AdminDashboard : NavKey

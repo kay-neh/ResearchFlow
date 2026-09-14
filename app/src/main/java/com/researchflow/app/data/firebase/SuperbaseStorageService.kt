@@ -38,11 +38,19 @@ class SupabaseStorageService @Inject constructor(
                 data = fileBytes
             )
 
-        supabase.storage
+        storagePath
+    }
+
+    suspend fun createDocumentSignedUrl(
+        storagePath: String
+    ): String {
+        return supabase.storage
             .from("research-documents")
             .createSignedUrl(
                 path = storagePath,
                 expiresIn = 60.minutes
             )
     }
+
+
 }
