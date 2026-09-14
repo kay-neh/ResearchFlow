@@ -6,13 +6,17 @@ import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.researchflow.app.data.model.ResearchArchive
 import com.researchflow.app.data.model.UserRole
 import com.researchflow.app.presentation.admin.AdminAssignmentScreen
 import com.researchflow.app.presentation.admin.AdminCreateUserScreen
 import com.researchflow.app.presentation.admin.AdminDashboardScreen
+import com.researchflow.app.presentation.admin.AdminReportsScreen
+import com.researchflow.app.presentation.admin.AdminResearchArchiveScreen
 import com.researchflow.app.presentation.admin.AdminUsersScreen
 import com.researchflow.app.presentation.auth.LoginScreen
 import com.researchflow.app.presentation.auth.RegisterScreen
+import com.researchflow.app.presentation.notification.NotificationScreen
 import com.researchflow.app.presentation.student.ResubmissionScreen
 import com.researchflow.app.presentation.student.StudentDashboardScreen
 import com.researchflow.app.presentation.student.StudentProfileScreen
@@ -84,6 +88,9 @@ fun AppNavigation() {
                 },
                 onViewSubmissionStatusClick = {
                     navigator.navigate(SubmissionStatus)
+                },
+                onNotificationsClick = {
+                    navigator.navigate(Notifications)
                 }
             )
         }
@@ -145,6 +152,9 @@ fun AppNavigation() {
                 },
                 onViewSubmissionsClick = {
                     navigator.navigate(SupervisorSubmissions)
+                },
+                onNotificationsClick = {
+                    navigator.navigate(Notifications)
                 }
             )
         }
@@ -180,6 +190,16 @@ fun AppNavigation() {
                     navigator.navigate(
                         ManageUsers
                     )
+                },
+                onResearchArchiveClick = {
+                    navigator.navigate(
+                        AdminResearchArchive
+                    )
+                },
+                onReportsClick = {
+                    navigator.navigate(
+                        AdminReports
+                    )
                 }
             )
         }
@@ -196,12 +216,24 @@ fun AppNavigation() {
             )
         }
 
+        entry<AdminResearchArchive> {
+            AdminResearchArchiveScreen()
+        }
+
+        entry<AdminReports> {
+            AdminReportsScreen()
+        }
+
         entry<CreateUser> {
             AdminCreateUserScreen(
                 onUserCreated = {
                     navigator.goBack()
                 }
             )
+        }
+
+        entry<Notifications> {
+            NotificationScreen()
         }
 
     }

@@ -1,7 +1,7 @@
 package com.researchflow.app.data.repository
 
 import com.researchflow.app.data.firebase.FirestoreSubmissionVersionService
-import com.researchflow.app.data.firebase.SupabaseStorageService
+import com.researchflow.app.data.supabase.SupabaseStorageService
 import com.researchflow.app.data.model.SubmissionVersion
 import com.researchflow.app.domain.repository.SubmissionVersionRepository
 import javax.inject.Inject

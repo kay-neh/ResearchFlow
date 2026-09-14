@@ -53,4 +53,14 @@ class SubmissionRepositoryImpl @Inject constructor(
             currentVersion = currentVersion
         )
     }
+
+    override suspend fun updateDeadlineId(
+        submissionId: String,
+        deadlineId: String?
+    ) {
+        firestoreSubmissionService.updateDeadlineId(
+            submissionId = submissionId,
+            deadlineId = deadlineId
+        )
+    }
 }

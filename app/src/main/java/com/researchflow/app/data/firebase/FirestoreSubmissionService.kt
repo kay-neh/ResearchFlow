@@ -77,4 +77,17 @@ class FirestoreSubmissionService @Inject constructor(
             )
             .await()
     }
+
+    suspend fun updateDeadlineId(
+        submissionId: String,
+        deadlineId: String?
+    ) {
+        firestore.collection("submissions")
+            .document(submissionId)
+            .update(
+                "deadlineId",
+                deadlineId
+            )
+            .await()
+    }
 }

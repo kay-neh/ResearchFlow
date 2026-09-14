@@ -26,4 +26,9 @@ interface SubmissionRepository {
         submissionId: String,
         currentVersion: Int
     )
+
+    suspend fun updateDeadlineId(
+        submissionId: String,
+        deadlineId: String?
+    )
 }

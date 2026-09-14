@@ -1,4 +1,4 @@
-package com.researchflow.app.data.firebase
+package com.researchflow.app.data.supabase
 
 import android.content.Context
 import android.net.Uri

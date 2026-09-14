@@ -2,11 +2,17 @@ package com.researchflow.app.presentation.supervisor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.researchflow.app.data.model.Deadline
 import com.researchflow.app.data.model.Feedback
 import com.researchflow.app.data.model.Submission
 import com.researchflow.app.data.model.SubmissionStatus
 import com.researchflow.app.data.model.SubmissionVersion
+import com.researchflow.app.domain.usecase.deadline.CreateDeadlineUseCase
+import com.researchflow.app.domain.usecase.deadline.GetSubmissionDeadlineUseCase
+import com.researchflow.app.domain.usecase.deadline.SetDeadlineActiveUseCase
+import com.researchflow.app.domain.usecase.deadline.UpdateDeadlineUseCase
 import com.researchflow.app.domain.usecase.submission.AddFeedbackUseCase
 import com.researchflow.app.domain.usecase.submission.GetSubmissionFeedbackUseCase
 import com.researchflow.app.domain.usecase.submission.GetSubmissionUseCase
@@ -25,6 +31,7 @@ data class SubmissionDetailsUiState(
     val submission: Submission? = null,
     val versions: List<SubmissionVersion> = emptyList(),
     val feedback: List<Feedback> = emptyList(),
+    val deadline: Deadline? = null,
     val errorMessage: String? = null
 )
 
@@ -36,7 +43,11 @@ class SubmissionDetailsViewModel @Inject constructor(
     private val addFeedbackUseCase: AddFeedbackUseCase,
     private val openSubmissionDocumentUseCase: OpenSubmissionDocumentUseCase,
     private val firebaseAuth: FirebaseAuth,
-    private val updateSubmissionStatusUseCase: UpdateSubmissionStatusUseCase
+    private val updateSubmissionStatusUseCase: UpdateSubmissionStatusUseCase,
+    private val createDeadlineUseCase: CreateDeadlineUseCase,
+    private val getSubmissionDeadlineUseCase: GetSubmissionDeadlineUseCase,
+    private val updateDeadlineUseCase: UpdateDeadlineUseCase,
+    private val setDeadlineActiveUseCase: SetDeadlineActiveUseCase
 ) : ViewModel() {
 
     private val _uiState =
@@ -60,6 +71,12 @@ class SubmissionDetailsViewModel @Inject constructor(
                         errorMessage = "Submission not found"
                     )
                 } else {
+
+                    val deadline =
+                        getSubmissionDeadlineUseCase(
+                            submission.deadlineId
+                        )
+
                     val versions = getSubmissionVersionsUseCase(
                         submissionId
                     )
@@ -71,7 +88,8 @@ class SubmissionDetailsViewModel @Inject constructor(
                     _uiState.value = SubmissionDetailsUiState(
                         submission = submission,
                         versions = versions,
-                        feedback = feedback
+                        feedback = feedback,
+                        deadline = deadline
                     )
                 }
 
@@ -192,6 +210,121 @@ class SubmissionDetailsViewModel @Inject constructor(
                     errorMessage = e.message
                         ?: "Failed to load version feedback"
                 )
+            }
+        }
+    }
+
+    fun createDeadline(
+        submissionId: String,
+        title: String,
+        description: String,
+        deadlineDate: Timestamp
+    ) {
+        viewModelScope.launch {
+            try {
+                val supervisorId =
+                    firebaseAuth.currentUser?.uid
+                        ?: throw IllegalStateException(
+                            "Supervisor is not logged in"
+                        )
+
+                createDeadlineUseCase(
+                    submissionId = submissionId,
+                    supervisorId = supervisorId,
+                    title = title,
+                    description = description,
+                    deadlineDate = deadlineDate
+                )
+
+                val updatedSubmission =
+                    getSubmissionUseCase(submissionId)
+
+                val updatedDeadline =
+                    updatedSubmission?.deadlineId?.let {
+                        getSubmissionDeadlineUseCase(it)
+                    }
+
+                _uiState.value =
+                    _uiState.value.copy(
+                        deadline = updatedDeadline,
+                        errorMessage = null
+                    )
+
+            } catch (e: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        errorMessage =
+                            e.message
+                                ?: "Failed to create deadline"
+                    )
+            }
+        }
+    }
+
+    fun updateDeadline(
+        deadlineId: String,
+        title: String,
+        description: String,
+        deadlineDate: Timestamp
+    ) {
+        viewModelScope.launch {
+            try {
+                updateDeadlineUseCase(
+                    deadlineId = deadlineId,
+                    title = title,
+                    description = description,
+                    deadlineDate = deadlineDate
+                )
+
+                val updatedDeadline =
+                    _uiState.value.deadline?.copy(
+                        title = title,
+                        description = description,
+                        deadlineDate = deadlineDate
+                    )
+
+                _uiState.value =
+                    _uiState.value.copy(
+                        deadline = updatedDeadline,
+                        errorMessage = null
+                    )
+
+            } catch (e: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        errorMessage =
+                            e.message ?: "Failed to update deadline"
+                    )
+            }
+        }
+    }
+
+    fun setDeadlineActive(
+        deadlineId: String,
+        isActive: Boolean
+    ) {
+        viewModelScope.launch {
+            try {
+                setDeadlineActiveUseCase(
+                    deadlineId = deadlineId,
+                    isActive = isActive
+                )
+
+                _uiState.value =
+                    _uiState.value.copy(
+                        deadline =
+                            _uiState.value.deadline?.copy(
+                                isActive = isActive
+                            ),
+                        errorMessage = null
+                    )
+
+            } catch (e: Exception) {
+                _uiState.value =
+                    _uiState.value.copy(
+                        errorMessage =
+                            e.message ?: "Failed to update deadline"
+                    )
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.researchflow.app.presentation.supervisor
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +25,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -31,7 +35,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.researchflow.app.data.model.SubmissionVersion
 import androidx.core.net.toUri
+import com.google.firebase.Timestamp
 import com.researchflow.app.data.model.SubmissionStatus
+import java.util.Calendar
 
 @Composable
 fun SubmissionDetailsScreen(
@@ -43,6 +49,22 @@ fun SubmissionDetailsScreen(
 
     var feedbackText by remember {
         mutableStateOf("")
+    }
+
+    var showDeadlineDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var deadlineTitle by remember {
+        mutableStateOf("")
+    }
+
+    var deadlineDescription by remember {
+        mutableStateOf("")
+    }
+
+    var selectedDeadlineDate by remember {
+        mutableStateOf<Calendar?>(null)
     }
 
     LaunchedEffect(submissionId) {
@@ -121,7 +143,106 @@ fun SubmissionDetailsScreen(
                             text = "Supervisor ID: ${submission.supervisorId}"
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = "Deadline",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val deadline = uiState.deadline
+
+                        if (deadline == null) {
+
+                            Text("No deadline set.")
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Button(
+                                onClick = {
+                                    deadlineTitle = ""
+                                    deadlineDescription = ""
+                                    selectedDeadlineDate = null
+                                    showDeadlineDialog = true
+                                }
+                            ) {
+                                Text("Set Deadline")
+                            }
+
+                        } else {
+
+                            Text(
+                                text = deadline.title,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            deadline.deadlineDate?.let {
+                                Text(
+                                    text = "Due: ${it.toDate()}"
+                                )
+                            }
+
+                            if (deadline.description.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Text(
+                                    text = deadline.description
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            if (deadline.isActive) {
+
+                                Button(
+                                    onClick = {
+                                        deadlineTitle = deadline.title
+                                        deadlineDescription = deadline.description
+
+                                        deadline.deadlineDate?.let {
+                                            selectedDeadlineDate =
+                                                Calendar.getInstance().apply {
+                                                    time = it.toDate()
+                                                }
+                                        }
+
+                                        showDeadlineDialog = true
+                                    }
+                                ) {
+                                    Text("Edit Deadline")
+                                }
+
+                                TextButton(
+                                    onClick = {
+                                        viewModel.setDeadlineActive(
+                                            deadlineId = deadline.deadlineId,
+                                            isActive = false
+                                        )
+                                    }
+                                ) {
+                                    Text("Deactivate Deadline")
+                                }
+
+                            } else {
+
+                                Text("Deadline is inactive.")
+
+                                TextButton(
+                                    onClick = {
+                                        viewModel.setDeadlineActive(
+                                            deadlineId = deadline.deadlineId,
+                                            isActive = true
+                                        )
+                                    }
+                                ) {
+                                    Text("Activate Deadline")
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         Text(
                             text = "Documents",
@@ -404,6 +525,251 @@ fun SubmissionDetailsScreen(
             }
         }
     }
+
+    if (showDeadlineDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showDeadlineDialog = false
+            },
+            title = {
+                Text(
+                    text = if (uiState.deadline == null) {
+                        "Set Deadline"
+                    } else {
+                        "Edit Deadline"
+                    }
+                )
+            },
+            text = {
+                Column {
+
+                    OutlinedTextField(
+                        value = deadlineTitle,
+                        onValueChange = {
+                            deadlineTitle = it
+                        },
+                        label = {
+                            Text("Deadline Title")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = deadlineDescription,
+                        onValueChange = {
+                            deadlineDescription = it
+                        },
+                        label = {
+                            Text("Description")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    Button(
+                        onClick = {
+
+                            val calendar =
+                                selectedDeadlineDate
+                                    ?: Calendar.getInstance()
+
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+
+                                    val updatedCalendar =
+                                        (selectedDeadlineDate?.clone() as? Calendar)
+                                            ?: Calendar.getInstance()
+
+                                    updatedCalendar.set(
+                                        Calendar.YEAR,
+                                        year
+                                    )
+
+                                    updatedCalendar.set(
+                                        Calendar.MONTH,
+                                        month
+                                    )
+
+                                    updatedCalendar.set(
+                                        Calendar.DAY_OF_MONTH,
+                                        dayOfMonth
+                                    )
+
+                                    selectedDeadlineDate = updatedCalendar
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (selectedDeadlineDate == null) {
+                                "Select Date"
+                            } else {
+                                "Change Date"
+                            }
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    selectedDeadlineDate?.let { calendar ->
+
+                        Text(
+                            text = "Date: ${
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            }/${
+                                calendar.get(Calendar.MONTH) + 1
+                            }/${
+                                calendar.get(Calendar.YEAR)
+                            }"
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    Button(
+                        onClick = {
+
+                            val calendar =
+                                selectedDeadlineDate
+                                    ?: Calendar.getInstance()
+
+                            TimePickerDialog(
+                                context,
+                                { _, hourOfDay, minute ->
+
+                                    val updatedCalendar =
+                                        (selectedDeadlineDate?.clone() as? Calendar)
+                                            ?: Calendar.getInstance()
+
+                                    updatedCalendar.set(
+                                        Calendar.HOUR_OF_DAY,
+                                        hourOfDay
+                                    )
+
+                                    updatedCalendar.set(
+                                        Calendar.MINUTE,
+                                        minute
+                                    )
+
+                                    updatedCalendar.set(
+                                        Calendar.SECOND,
+                                        0
+                                    )
+
+                                    updatedCalendar.set(
+                                        Calendar.MILLISECOND,
+                                        0
+                                    )
+
+                                    selectedDeadlineDate = updatedCalendar
+                                },
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE),
+                                true
+                            ).show()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Select Time")
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    selectedDeadlineDate?.let { calendar ->
+
+                        Text(
+                            text = "Time: ${
+                                String.format(
+                                    "%02d:%02d",
+                                    calendar.get(Calendar.HOUR_OF_DAY),
+                                    calendar.get(Calendar.MINUTE)
+                                )
+                            }"
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        val calendar =
+                            selectedDeadlineDate
+
+                        if (
+                            deadlineTitle.isNotBlank() &&
+                            calendar != null
+                        ) {
+
+                            val timestamp =
+                                Timestamp(
+                                    calendar.time
+                                )
+
+                            val existingDeadline =
+                                uiState.deadline
+
+                            if (existingDeadline == null) {
+
+                                viewModel.createDeadline(
+                                    submissionId = submissionId,
+                                    title = deadlineTitle,
+                                    description = deadlineDescription,
+                                    deadlineDate = timestamp
+                                )
+
+                            } else {
+
+                                viewModel.updateDeadline(
+                                    deadlineId =
+                                        existingDeadline.deadlineId,
+                                    title = deadlineTitle,
+                                    description =
+                                        deadlineDescription,
+                                    deadlineDate = timestamp
+                                )
+                            }
+
+                            showDeadlineDialog = false
+                        }
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        showDeadlineDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
 }
 
 @Composable

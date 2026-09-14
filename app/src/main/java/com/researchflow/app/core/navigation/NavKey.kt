@@ -56,4 +56,13 @@ data object SupervisorAssignment : NavKey
 data object ManageUsers : NavKey
 
 @Serializable
+data object AdminResearchArchive : NavKey
+
+@Serializable
+data object AdminReports : NavKey
+
+@Serializable
 data object CreateUser : NavKey
+
+@Serializable
+data object Notifications : NavKey

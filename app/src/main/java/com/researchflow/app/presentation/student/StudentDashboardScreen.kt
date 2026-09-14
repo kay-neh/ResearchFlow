@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun StudentDashboardScreen(
     onSubmitResearchClick: () -> Unit,
-    onViewSubmissionStatusClick: () -> Unit
+    onViewSubmissionStatusClick: () -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -53,6 +54,17 @@ fun StudentDashboardScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("View Submission Status")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                onNotificationsClick()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Notifications")
         }
     }
 }

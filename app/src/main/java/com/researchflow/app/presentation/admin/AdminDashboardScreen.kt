@@ -17,7 +17,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AdminDashboardScreen(
     onSupervisorAssignmentClick: () -> Unit,
-    onManageUsersClick: () -> Unit
+    onManageUsersClick: () -> Unit,
+    onResearchArchiveClick: () -> Unit,
+    onReportsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -53,6 +55,24 @@ fun AdminDashboardScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Manage Users")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = onResearchArchiveClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Research Archive")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = onReportsClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Generate Reports")
         }
     }
 }
