@@ -8,6 +8,10 @@ interface StudentRepository {
 
     suspend fun getStudent(studentId: String): Student?
 
+    suspend fun getStudentByUserId(
+        userId: String
+    ): Student?
+
     suspend fun getStudentsBySupervisor(
         supervisorId: String
     ): List<Student>

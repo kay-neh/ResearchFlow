@@ -44,4 +44,14 @@ class UserRepositoryImpl @Inject constructor(
             isActive = isActive
         )
     }
+
+    override suspend fun updateProfilePicture(
+        userId: String,
+        profilePictureUrl: String
+    ) {
+        firestoreUserService.updateProfilePicture(
+            userId = userId,
+            profilePictureUrl = profilePictureUrl
+        )
+    }
 }

@@ -21,4 +21,9 @@ interface UserRepository {
         userId: String,
         isActive: Boolean
     )
+
+    suspend fun updateProfilePicture(
+        userId: String,
+        profilePictureUrl: String
+    )
 }

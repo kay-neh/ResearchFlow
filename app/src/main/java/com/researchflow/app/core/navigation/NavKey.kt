@@ -10,10 +10,16 @@ data object Login : NavKey
 data object Register : NavKey
 
 @Serializable
+data object ForgotPassword : NavKey
+
+@Serializable
 data object StudentProfile : NavKey
 
 @Serializable
 data object StudentDashboard : NavKey
+
+@Serializable
+data object StudentAccountProfile : NavKey
 
 @Serializable
 data object SubmitResearch : NavKey
@@ -34,6 +40,9 @@ data class Resubmission(
 
 @Serializable
 data object SupervisorDashboard : NavKey
+
+@Serializable
+data object SupervisorAccountProfile : NavKey
 
 @Serializable
 data object SupervisorStudents : NavKey
@@ -57,6 +66,11 @@ data object ManageUsers : NavKey
 
 @Serializable
 data object AdminResearchArchive : NavKey
+
+@Serializable
+data class AdminResearchArchiveDetails(
+    val archiveId: String
+) : NavKey
 
 @Serializable
 data object AdminReports : NavKey

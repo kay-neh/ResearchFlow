@@ -3,91 +3,127 @@ package com.researchflow.app.presentation.admin
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.researchflow.app.data.model.AdminReport
+import com.researchflow.app.ui.components.ResearchFlowCard
+import com.researchflow.app.ui.components.ResearchFlowTopAppBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminReportsScreen(
+    onBackClick: () -> Unit,
     viewModel: AdminReportsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.loadReport()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Generate Reports")
-                }
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        ResearchFlowTopAppBar(
+            title = "Generate Reports",
+            onBackClick = onBackClick
+        )
 
         when {
             uiState.isLoading -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingReportState()
             }
 
             uiState.errorMessage != null -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = uiState.errorMessage
-                            ?: "Failed to generate report",
-                        color = MaterialTheme.colorScheme.error
-                    )
-
-                    TextButton(
-                        onClick = { viewModel.refresh() }
-                    ) {
-                        Text("Retry")
+                ErrorReportState(
+                    message = uiState.errorMessage
+                        ?: "Failed to generate report",
+                    onRetry = {
+                        viewModel.refresh()
                     }
-                }
+                )
             }
 
             uiState.report != null -> {
                 ReportContent(
-                    report = uiState.report!!,
-                    paddingValues = paddingValues
+                    report = uiState.report!!
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingReportState() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator()
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Generating report...",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun ErrorReportState(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ResearchFlowCard(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextButton(
+                    onClick = onRetry
+                ) {
+                    Text("Retry")
+                }
             }
         }
     }
@@ -95,120 +131,199 @@ fun AdminReportsScreen(
 
 @Composable
 private fun ReportContent(
-    report: AdminReport,
-    paddingValues: PaddingValues
+    report: AdminReport
 ) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
-        contentPadding = PaddingValues(16.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            horizontal = 24.dp,
+            vertical = 20.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
         item {
-            ReportCard(
-                title = "Total Users",
-                value = report.totalUsers
+            Text(
+                text = "System Overview",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Current statistics for users, supervisors, students, and research submissions.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // First row
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ReportMetricCard(
+                    title = "Total Users",
+                    value = report.totalUsers,
+                    modifier = Modifier.weight(1f)
+                )
+
+                ReportMetricCard(
+                    title = "Students",
+                    value = report.totalStudents,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        // Second row
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ReportMetricCard(
+                    title = "Supervisors",
+                    value = report.totalSupervisors,
+                    modifier = Modifier.weight(1f)
+                )
+
+                ReportMetricCard(
+                    title = "Submissions",
+                    value = report.totalSubmissions,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         item {
-            ReportCard(
-                title = "Total Students",
-                value = report.totalStudents
-            )
-        }
+            Spacer(modifier = Modifier.height(8.dp))
 
-        item {
-            ReportCard(
-                title = "Total Supervisors",
-                value = report.totalSupervisors
-            )
-        }
-
-        item {
-            ReportCard(
-                title = "Total Submissions",
-                value = report.totalSubmissions
-            )
-        }
-
-        item {
             Text(
                 text = "Submission Status",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(
-                    top = 8.dp,
-                    bottom = 4.dp
-                )
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Overview of research submissions by their current status.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
         item {
-            ReportCard(
+            ReportStatusCard(
                 title = "Submitted",
                 value = report.submitted
             )
         }
 
         item {
-            ReportCard(
+            ReportStatusCard(
                 title = "Under Review",
                 value = report.underReview
             )
         }
 
         item {
-            ReportCard(
+            ReportStatusCard(
                 title = "Correction Required",
                 value = report.correctionRequired
             )
         }
 
         item {
-            ReportCard(
+            ReportStatusCard(
                 title = "Resubmitted",
                 value = report.resubmitted
             )
         }
 
         item {
-            ReportCard(
+            ReportStatusCard(
                 title = "Approved",
                 value = report.approved
             )
         }
 
         item {
-            ReportCard(
+            ReportStatusCard(
                 title = "Rejected",
                 value = report.rejected
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun ReportMetricCard(
+    title: String,
+    value: Int,
+    modifier: Modifier = Modifier
+) {
+    ResearchFlowCard(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = value.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
 }
 
 @Composable
-private fun ReportCard(
+private fun ReportStatusCard(
     title: String,
     value: Int
 ) {
-    Card(
+    ResearchFlowCard(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = value.toString(),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(top = 4.dp)
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

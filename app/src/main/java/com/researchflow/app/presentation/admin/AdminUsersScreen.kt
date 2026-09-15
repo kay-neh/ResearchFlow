@@ -2,6 +2,8 @@ package com.researchflow.app.presentation.admin
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -24,14 +25,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.researchflow.app.data.model.User
+import com.researchflow.app.ui.components.ResearchFlowCard
+import com.researchflow.app.ui.components.ResearchFlowTopAppBar
 
 @Composable
 fun AdminUsersScreen(
+    onBackClick: () -> Unit,
     onCreateUserClick: () -> Unit,
     viewModel: AdminUsersViewModel = hiltViewModel()
 ) {
@@ -42,65 +48,132 @@ fun AdminUsersScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Manage Users",
-            style = MaterialTheme.typography.headlineMedium
+
+        // Top App Bar
+        ResearchFlowTopAppBar(
+            title = "Manage Users",
+            onBackClick = onBackClick
         )
 
-        Spacer(modifier = Modifier.padding(12.dp))
-
-        Button(
-            onClick = onCreateUserClick,
-            modifier = Modifier.fillMaxWidth()
+        // Screen Content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
         ) {
-            Text("Create User")
-        }
 
-        Spacer(modifier = Modifier.padding(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        when {
-            uiState.isLoading -> {
-                CircularProgressIndicator()
+            Text(
+                text = "Manage system users",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Create, update, enable, and disable user accounts.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = onCreateUserClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Create User")
             }
 
-            uiState.errorMessage != null -> {
-                Text(
-                    text = uiState.errorMessage!!,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
+            Spacer(modifier = Modifier.height(20.dp))
 
-            uiState.users.isEmpty() -> {
-                Text(
-                    text = "No users have been registered yet.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
+            when {
+                uiState.isLoading -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(20.dp))
 
-            else -> {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.users) { user ->
-                        UserCard(
-                            user = user,
-                            onEditClick = { name ->
-                                viewModel.updateUser(
-                                    userId = user.userId,
-                                    name = name
-                                )
-                            },
-                            onToggleActiveClick = {
-                                viewModel.setUserActive(
-                                    userId = user.userId,
-                                    isActive = !user.isActive
-                                )
-                            }
+                        CircularProgressIndicator()
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "Loading users...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+
+                uiState.errorMessage != null -> {
+                    ResearchFlowCard(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = uiState.errorMessage!!,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
+                uiState.users.isEmpty() -> {
+                    ResearchFlowCard(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column {
+                            Text(
+                                text = "No users yet",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = "No users have been registered or created yet.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 24.dp)
+                    ) {
+                        items(
+                            items = uiState.users,
+                            key = { it.userId }
+                        ) { user ->
+
+                            UserCard(
+                                user = user,
+                                onEditClick = { name ->
+                                    viewModel.updateUser(
+                                        userId = user.userId,
+                                        name = name
+                                    )
+                                },
+                                onToggleActiveClick = {
+                                    viewModel.setUserActive(
+                                        userId = user.userId,
+                                        isActive = !user.isActive
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -126,72 +199,105 @@ private fun UserCard(
         mutableStateOf(user.email)
     }
 
-    Card(
+    ResearchFlowCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Name: ${user.name}",
-                style = MaterialTheme.typography.titleMedium
-            )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Email: ${user.email}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Role: ${user.role}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = if (user.isActive) {
-                    "Status: Active"
-                } else {
-                    "Status: Disabled"
-                },
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedButton(
-                onClick = {
-                    editedName = user.name
-                    editedEmail = user.email
-                    showEditDialog = true
-                },
-                modifier = Modifier.fillMaxWidth()
+            // User Identity + Account Status
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Edit")
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = user.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-            Button(
-                onClick = onToggleActiveClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = user.email,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
                 Text(
-                    if (user.isActive) {
-                        "Disable User"
+                    text = if (user.isActive) "Active" else "Disabled",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (user.isActive) {
+                        MaterialTheme.colorScheme.primary
                     } else {
-                        "Enable User"
+                        MaterialTheme.colorScheme.error
                     }
                 )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Role
+            Text(
+                text = "Account Role",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = user.role.name.replace("_", " "),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Actions
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                OutlinedButton(
+                    onClick = {
+                        editedName = user.name
+                        editedEmail = user.email
+                        showEditDialog = true
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Edit")
+                }
+
+                Button(
+                    onClick = onToggleActiveClick,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = if (user.isActive) {
+                            "Disable"
+                        } else {
+                            "Enable"
+                        }
+                    )
+                }
             }
         }
     }
 
+    // Edit User Dialog
     if (showEditDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -202,6 +308,7 @@ private fun UserCard(
             },
             text = {
                 Column {
+
                     OutlinedTextField(
                         value = editedName,
                         onValueChange = {
@@ -219,7 +326,9 @@ private fun UserCard(
                     OutlinedTextField(
                         value = editedEmail,
                         onValueChange = {},
-                        label = { Text("Email") },
+                        label = {
+                            Text("Email")
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         enabled = false

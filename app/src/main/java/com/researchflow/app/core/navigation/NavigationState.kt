@@ -55,11 +55,7 @@ class NavigationState(
     var topLevelRoute: NavKey by topLevelRoute
 
     val stacksInUse: List<NavKey>
-        get() = if (topLevelRoute == startRoute) {
-            listOf(startRoute)
-        } else {
-            listOf(startRoute, topLevelRoute)
-        }
+        get() = listOf(topLevelRoute)
 }
 
 @Composable

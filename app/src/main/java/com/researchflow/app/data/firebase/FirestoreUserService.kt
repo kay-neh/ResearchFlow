@@ -66,4 +66,14 @@ class FirestoreUserService @Inject constructor(
             )
             .await()
     }
+
+    suspend fun updateProfilePicture(
+        userId: String,
+        profilePictureUrl: String
+    ) {
+        firestore.collection("users")
+            .document(userId)
+            .update("profilePictureUrl", profilePictureUrl)
+            .await()
+    }
 }

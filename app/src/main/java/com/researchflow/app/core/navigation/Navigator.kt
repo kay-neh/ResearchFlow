@@ -7,11 +7,17 @@ class Navigator(
 ) {
 
     fun navigate(route: NavKey) {
+        println("NAVIGATE → $route")
+        println("Current topLevelRoute BEFORE = ${state.topLevelRoute}")
+
         if (route in state.backStacks.keys) {
             state.topLevelRoute = route
         } else {
             state.backStacks[state.topLevelRoute]?.add(route)
         }
+
+        println("Current topLevelRoute AFTER = ${state.topLevelRoute}")
+        println("Stacks = ${state.backStacks}")
     }
 
     fun goBack() {
@@ -25,5 +31,9 @@ class Navigator(
         } else {
             currentStack.removeLastOrNull()
         }
+    }
+
+    fun logout() {
+        state.topLevelRoute = state.startRoute
     }
 }
